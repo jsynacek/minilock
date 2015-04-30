@@ -160,6 +160,13 @@ load_password(void)
 	return spwd->sp_pwdp;
 }
 
+static void
+suspend()
+{
+	if (fork() == 0)
+		execlp("systemctl", "systemctl", "suspend", NULL);
+}
+
 int
 main(void)
 {
@@ -219,6 +226,11 @@ main(void)
 				continue;
 
 			failed = 0;
+			/* special */
+			if (ev.xkey.state == ControlMask && ksym == XK_s) {
+				suspend();
+				continue;
+			}
 			switch (ksym) {
 			case XK_Return:
 				if (auth(real_pwd, pwd))
